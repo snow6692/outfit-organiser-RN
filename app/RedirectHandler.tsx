@@ -15,7 +15,7 @@ const RedirectHandler = () => {
       if (user) {
         router.replace('/home');
       } else {
-        router.replace('/auth/login');
+        router.replace('/');
       }
     }
   }, [user, isLoading, router]);

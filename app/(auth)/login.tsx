@@ -5,44 +5,41 @@ import { useRouter } from 'expo-router';
 import { View, Text, TextInput, TouchableOpacity, Alert } from 'react-native';
 import { useForm, Controller } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
-import { signUpZod, type signUpZod as SignUpFormData } from '../../../validations/auth.zod';
-import { useRegister } from '../../../hooks/useRegister';
+import { signInZod, type signInZod as SignInFormData } from '../../validations/auth.zod';
+import { useLogin } from '~/hooks/useLogin';
 
-const RegisterScreen = () => {
+const LoginScreen = () => {
   const router = useRouter();
-  const registerMutation = useRegister();
+  const loginMutation = useLogin();
 
   const {
     control,
     handleSubmit,
     formState: { errors },
-  } = useForm<SignUpFormData>({
-    resolver: zodResolver(signUpZod),
+  } = useForm<SignInFormData>({
+    resolver: zodResolver(signInZod),
     defaultValues: {
       email: '',
       password: '',
-      confirmPassword: '',
     },
   });
 
-  const onSubmit = (data: SignUpFormData) => {
-    registerMutation.mutate(data, {
+  const onSubmit = (data: SignInFormData) => {
+    loginMutation.mutate(data, {
       onSuccess: () => {
-        Alert.alert('Success', 'Signed up successfully!');
-        // Navigation is now handled in useRegister hook
+        Alert.alert('Success', 'Signed in successfully!');
+        // Navigation is now handled in useLogin hook
       },
       onError: (error: any) => {
-        Alert.alert('Error', error.message || 'Registration failed. Please try again.');
+        Alert.alert('Error', error.message || 'Login failed. Please try again.');
       },
     });
   };
 
   return (
     <View className="flex-1 items-center justify-start bg-gray-400 p-5">
-      <Text className="mt-10 text-3xl font-bold text-white">Sign Up</Text>
-      <Text className="mt-2 text-center text-lg text-white">
-        Fill your information below or register with your social account.
-      </Text>
+      <Text className="mt-10 text-3xl font-bold text-white">Sign In</Text>
+      <Text className="mt-2 text-lg text-white">Hi! Welcome back, you have been missed</Text>
 
       <Controller
         control={control}
@@ -50,7 +47,7 @@ const RegisterScreen = () => {
         render={({ field: { onChange, value } }) => (
           <>
             <TextInput
-              className={`mt-3 w-[90%] rounded-lg bg-gray-200 p-3 ${errors.email ? 'border-2 border-red-500' : ''}`}
+              className={`mt-5 w-[90%] rounded-lg bg-gray-200 p-3 ${errors.email ? 'border-2 border-red-500' : ''}`}
               placeholder="Email"
               value={value}
               onChangeText={onChange}
@@ -82,31 +79,12 @@ const RegisterScreen = () => {
         )}
       />
 
-      <Controller
-        control={control}
-        name="confirmPassword"
-        render={({ field: { onChange, value } }) => (
-          <>
-            <TextInput
-              className={`mt-3 w-[90%] rounded-lg bg-gray-200 p-3 ${errors.confirmPassword ? 'border-2 border-red-500' : ''}`}
-              placeholder="Confirm Password"
-              value={value}
-              onChangeText={onChange}
-              secureTextEntry
-            />
-            {errors.confirmPassword && (
-              <Text className="mt-1 text-sm text-red-500">{errors.confirmPassword.message}</Text>
-            )}
-          </>
-        )}
-      />
-
       <TouchableOpacity
         className="mt-5 w-[90%] rounded-lg bg-gray-600 py-3"
         onPress={handleSubmit(onSubmit)}
-        disabled={registerMutation.isPending}>
+        disabled={loginMutation.isPending}>
         <Text className="text-center text-lg font-semibold text-white">
-          {registerMutation.isPending ? 'Signing Up...' : 'Sign Up'}
+          {loginMutation.isPending ? 'Signing In...' : 'sign In'}
         </Text>
       </TouchableOpacity>
 
@@ -118,12 +96,12 @@ const RegisterScreen = () => {
 
       <View className="mt-5 flex-row">
         <Text className="text-white">Don't have an account? </Text>
-        <TouchableOpacity onPress={() => router.push('/auth/login')}>
-          <Text className="text-blue-500">Sign IN</Text>
+        <TouchableOpacity onPress={() => router.push('/register')}>
+          <Text className="text-blue-500">SIGN UP</Text>
         </TouchableOpacity>
       </View>
     </View>
   );
 };
 
-export default RegisterScreen;
+export default LoginScreen;

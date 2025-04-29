@@ -18,25 +18,25 @@ const AuthScreen = () => {
 
       {/* Text Section */}
       <View className="mt-5 items-center">
-        <Text className="text-soft-white text-lg font-semibold">Hello!</Text>
-        <Text className="text-soft-white mt-2 text-center text-2xl font-bold">
+        <Text className="text-lg font-semibold text-soft-white">Hello!</Text>
+        <Text className="mt-2 text-center text-2xl font-bold text-soft-white">
           Create your account{'\n'} Have one? Signin!
         </Text>
-        <Text className="text-soft-white mt-5 text-lg font-semibold">Get Started </Text>
+        <Text className="mt-5 text-lg font-semibold text-soft-white">Get Started </Text>
       </View>
 
       {/* Buttons */}
       <View className="mt-5 w-[40%]">
         <TouchableOpacity
           className="mb-3 rounded-lg bg-slate-700 py-3"
-          onPress={() => router.push('/auth/register')}>
-          <Text className="text-soft-white text-center text-lg font-semibold">Register</Text>
+          onPress={() => router.push('/register')}>
+          <Text className="text-center text-lg font-semibold text-soft-white">Register</Text>
         </TouchableOpacity>
 
         <TouchableOpacity
           className="rounded-lg bg-slate-700 py-3"
-          onPress={() => router.push('/auth/login')}>
-          <Text className="text-soft-white text-center text-lg font-semibold">Login</Text>
+          onPress={() => router.push('/login')}>
+          <Text className="text-center text-lg font-semibold text-soft-white">Login</Text>
         </TouchableOpacity>
       </View>
     </View>

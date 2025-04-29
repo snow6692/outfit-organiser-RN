@@ -8,7 +8,7 @@ const SplashScreen = () => {
   return (
     <View className="flex-1">
       <ImageBackground
-        source={require('../assets/splash.jpg')} // Use require for local images
+        source={require('../../assets/splash.jpg')} // Use require for local images
         className="flex-1 items-center justify-between"
         resizeMode="cover">
         <View className="mt-10">
