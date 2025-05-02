@@ -25,7 +25,7 @@ const WishlistScreen: React.FC = () => {
           <Text className="mx-3 border-b-2 border-black text-lg font-semibold text-black">
             Wishlist
           </Text>
-          <Link href="/(tabs)/profile/schedule-outfits" asChild>
+          <Link href="/(tabs)/schedule-outfits" asChild>
             <TouchableOpacity>
               <Text className="mx-3 text-lg text-gray-500">Schedule Outfits</Text>
             </TouchableOpacity>
