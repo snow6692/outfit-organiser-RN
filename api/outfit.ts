@@ -83,22 +83,16 @@ export const deleteOutfit = async (id: string): Promise<{ message: string }> => 
   }
 };
 
-export const getWishlistOutfits = async () => {
+export const updateOutfit = async (
+  outfitId: string,
+  favorite: boolean
+): Promise<OutfitResponse> => {
   try {
-    const response = await api.get('/outfit', {
-      params: { wishlist: true },
-    });
+    const response = await api.patch(`/${outfitId}`, { favorite });
+    console.log(`Update Outfit Response (ID: ${outfitId}, favorite: ${favorite}):`, response.data);
     return response.data;
   } catch (error: any) {
-    throw new Error(error.response?.data?.message || `Failed to get wishlist outfits`);
-  }
-};
-
-export const toggleWishlist = async (outfitId: string) => {
-  try {
-    const response = await api.patch(`/outfit/${outfitId}/wishlist`);
-    return response.data;
-  } catch (error: any) {
-    throw new Error(error.response?.data?.message || `Failed to toggle favorite outfit`);
+    console.error(`Update Outfit Error (ID: ${outfitId}):`, error.response?.data || error.message);
+    throw new Error(error.response?.data?.message || `Failed to update outfit favorite status`);
   }
 };
