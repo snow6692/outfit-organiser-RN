@@ -64,7 +64,7 @@ export const createOutfit = async (
 export const getUserOutfits = async (): Promise<OutfitResponse[]> => {
   try {
     const response = await api.get('/');
-    console.log('Get Outfits Response:', response.data);
+    // console.log('Get Outfits Response:', response.data);
     return response.data;
   } catch (error: any) {
     console.error('Get Outfits Error:', error.response?.data || error.message);

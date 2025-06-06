@@ -14,9 +14,8 @@ export default function RootLayout() {
     <QueryClientProvider client={queryClient}>
       <AuthProvider>
         <RedirectHandler />
-        <Slot />
+        <Slot /> 
       </AuthProvider>
     </QueryClientProvider>
   );
 }
- 

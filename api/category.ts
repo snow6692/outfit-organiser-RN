@@ -38,7 +38,7 @@ api.interceptors.response.use(
 export const getAllCategories = async () => {
   try {
     const response = await api.get('/category');
-    console.log('API Response:', response.data);
+    // console.log('API Response:', response.data);
     return response.data;
   } catch (error) {
     console.error('API Error:', error); // Debug log
@@ -49,7 +49,7 @@ export const getAllCategories = async () => {
 export const getCategoryById = async (id: string): Promise<categoriesTypes> => {
   try {
     const response = await api.get(`/category/${id}`);
-    console.log(`API Response (getCategoryById ${id}):`, response.data);
+    // console.log(`API Response (getCategoryById ${id}):`, response.data);
     return response.data;
   } catch (error: any) {
     console.error(`API Error (getCategoryById ${id}):`, error.response?.data || error.message);

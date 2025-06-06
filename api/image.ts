@@ -55,11 +55,11 @@ export const uploadImage = async (imageUri: string, categoryId: string): Promise
   formData.append('categoryId', categoryId);
 
   // Log the FormData content for debugging
-  console.log('FormData Content:', {
-    imageUri,
-    categoryId,
-    formData: JSON.stringify(formData), // Note: FormData logging might not show all details
-  });
+  // console.log('FormData Content:', {
+  //   imageUri,
+  //   categoryId,
+  //   formData: JSON.stringify(formData), // Note: FormData logging might not show all details
+  // });
 
   try {
     const response = await api.post('/', formData, {
@@ -67,7 +67,7 @@ export const uploadImage = async (imageUri: string, categoryId: string): Promise
         'Content-Type': 'multipart/form-data',
       },
     });
-    console.log('Upload Response:', response.data);
+    // console.log('Upload Response:', response.data);
     return response.data;
   } catch (error: any) {
     console.error('Upload Error:', error.response?.data || error.message);

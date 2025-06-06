@@ -23,7 +23,7 @@ const WishlistScreen: React.FC = () => {
 
   const wishlistOutfits = outfits?.filter((outfit) => outfit.favorite) || [];
 
-  console.log('Wishlist outfits:', wishlistOutfits);
+  // console.log('Wishlist outfits:', wishlistOutfits);
 
   const handleToggleFavorite = (outfitId: string) => {
     Alert.alert(
@@ -92,7 +92,7 @@ const WishlistScreen: React.FC = () => {
     });
 
     return (
-      <View className="mb-4 rounded-lg bg-gray-100 p-4">
+      <View className="bg-gray-100 mb-4 rounded-lg p-4">
         <View className="flex-row justify-between">
           {sortedImages.map((image) => (
             <Image
@@ -121,19 +121,19 @@ const WishlistScreen: React.FC = () => {
 
   return (
     <SafeAreaView className="flex-1 bg-white">
-      <View className="flex-row items-center justify-between border-b border-gray-200 px-4 py-3">
+      <View className="border-gray-200 flex-row items-center justify-between border-b px-4 py-3">
         <TouchableOpacity onPress={() => router.back()}>
           <Ionicons name="arrow-back" size={24} color="black" />
         </TouchableOpacity>
         <View className="flex-row">
           <TouchableOpacity onPress={() => router.push('/profile')}>
-            <Text className="mx-3 text-lg text-gray-500">Wardrobe</Text>
+            <Text className="text-gray-500 mx-3 text-lg">Wardrobe</Text>
           </TouchableOpacity>
           <Text className="mx-3 border-b-2 border-black text-lg font-semibold text-black">
             Wishlist
           </Text>
-          <TouchableOpacity onPress={() => router.push('/(tabs)/schedule-outfits')}>
-            <Text className="mx-3 text-lg text-gray-500">Schedule Outfits</Text>
+          <TouchableOpacity onPress={() => router.push('/(tabs)/wardrobe/schedule-outfits')}>
+            <Text className="text-gray-500 mx-3 text-lg">Schedule Outfits</Text>
           </TouchableOpacity>
         </View>
         <Ionicons name="heart-outline" size={24} color="black" />
@@ -155,7 +155,7 @@ const WishlistScreen: React.FC = () => {
             contentContainerStyle={{ paddingBottom: 20 }}
           />
         ) : (
-          <Text className="mt-4 text-center text-gray-500">
+          <Text className="text-gray-500 mt-4 text-center">
             No favorite outfits in your wishlist yet.
           </Text>
         )}

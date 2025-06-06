@@ -67,7 +67,7 @@ export const getUserSchedules = async (
   try {
     const params = year && month ? { year, month } : year ? { year } : {};
     const response = await api.get('/', { params });
-    console.log('Get Schedules Response:', response.data);
+    // console.log('Get Schedules Response:', response.data);
     return response.data;
   } catch (error: any) {
     console.error('Get Schedules Error:', error.response?.data || error.message);

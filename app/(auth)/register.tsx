@@ -2,15 +2,27 @@
 /* eslint-disable import/order */
 import { AntDesign } from '@expo/vector-icons';
 import { useRouter } from 'expo-router';
-import { View, Text, TextInput, TouchableOpacity, Alert } from 'react-native';
+import {
+  View,
+  Text,
+  TextInput,
+  TouchableOpacity,
+  Alert,
+  Image,
+  KeyboardAvoidingView,
+  Platform,
+} from 'react-native';
 import { useForm, Controller } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { signUpZod, type signUpZod as SignUpFormData } from '../../validations/auth.zod';
 import { useRegister } from '~/hooks/useRegister';
+import { useState } from 'react';
 
 const RegisterScreen = () => {
   const router = useRouter();
   const registerMutation = useRegister();
+  const [showPassword, setShowPassword] = useState(false);
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
 
   const {
     control,
@@ -38,11 +50,16 @@ const RegisterScreen = () => {
   };
 
   return (
-    <View className="flex-1 items-center justify-start bg-gray-400 p-5">
-      <Text className="mt-10 text-3xl font-bold text-white">Sign Up</Text>
-      <Text className="mt-2 text-center text-lg text-white">
-        Fill your information below or register with your social account.
-      </Text>
+    <KeyboardAvoidingView
+      behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+      className="flex-1 items-center justify-start p-5"
+      keyboardVerticalOffset={Platform.OS === 'ios' ? 40 : 0}>
+      <Image
+        source={require('../../assets/register.png')}
+        className="mt-5 h-60 w-[70%]"
+        resizeMode="cover"
+      />
+      <Text className="mb-5 mt-10 text-4xl font-bold text-black">Sign Up</Text>
 
       <Controller
         control={control}
@@ -50,7 +67,7 @@ const RegisterScreen = () => {
         render={({ field: { onChange, value } }) => (
           <>
             <TextInput
-              className={`mt-3 w-[90%] rounded-lg bg-gray-200 p-3 ${errors.email ? 'border-2 border-red-500' : ''}`}
+              className={`mb-4 mt-3 w-[90%] rounded-lg border border-black p-3 ${errors.email ? 'border-2 border-red-500' : ''}`}
               placeholder="Email"
               value={value}
               onChangeText={onChange}
@@ -68,13 +85,20 @@ const RegisterScreen = () => {
         name="password"
         render={({ field: { onChange, value } }) => (
           <>
-            <TextInput
-              className={`mt-3 w-[90%] rounded-lg bg-gray-200 p-3 ${errors.password ? 'border-2 border-red-500' : ''}`}
-              placeholder="Password"
-              value={value}
-              onChangeText={onChange}
-              secureTextEntry
-            />
+            <View className="relative w-[90%]">
+              <TextInput
+                className={`mb-4 mt-3 w-full rounded-lg border border-black p-3 ${errors.password ? 'border-2 border-red-500' : ''}`}
+                placeholder="Password"
+                value={value}
+                onChangeText={onChange}
+                secureTextEntry={!showPassword}
+              />
+              <TouchableOpacity
+                className="absolute right-3 top-6"
+                onPress={() => setShowPassword(!showPassword)}>
+                <AntDesign name={showPassword ? 'eye' : 'eyeo'} size={20} color="gray" />
+              </TouchableOpacity>
+            </View>
             {errors.password && (
               <Text className="mt-1 text-sm text-red-500">{errors.password.message}</Text>
             )}
@@ -87,13 +111,20 @@ const RegisterScreen = () => {
         name="confirmPassword"
         render={({ field: { onChange, value } }) => (
           <>
-            <TextInput
-              className={`mt-3 w-[90%] rounded-lg bg-gray-200 p-3 ${errors.confirmPassword ? 'border-2 border-red-500' : ''}`}
-              placeholder="Confirm Password"
-              value={value}
-              onChangeText={onChange}
-              secureTextEntry
-            />
+            <View className="relative w-[90%]">
+              <TextInput
+                className={`mb-4 mt-3 w-full rounded-lg border border-black p-3 ${errors.confirmPassword ? 'border-2 border-red-500' : ''}`}
+                placeholder="Confirm Password"
+                value={value}
+                onChangeText={onChange}
+                secureTextEntry={!showConfirmPassword}
+              />
+              <TouchableOpacity
+                className="absolute right-3 top-6"
+                onPress={() => setShowConfirmPassword(!showConfirmPassword)}>
+                <AntDesign name={showConfirmPassword ? 'eye' : 'eyeo'} size={20} color="gray" />
+              </TouchableOpacity>
+            </View>
             {errors.confirmPassword && (
               <Text className="mt-1 text-sm text-red-500">{errors.confirmPassword.message}</Text>
             )}
@@ -102,7 +133,7 @@ const RegisterScreen = () => {
       />
 
       <TouchableOpacity
-        className="mt-5 w-[90%] rounded-lg bg-gray-600 py-3"
+        className="bg-blue mt-6 w-[55%] rounded-full border py-1"
         onPress={handleSubmit(onSubmit)}
         disabled={registerMutation.isPending}>
         <Text className="text-center text-lg font-semibold text-white">
@@ -111,18 +142,12 @@ const RegisterScreen = () => {
       </TouchableOpacity>
 
       <View className="mt-5 flex-row">
-        <TouchableOpacity className="mx-2 rounded-full bg-white p-3">
-          <AntDesign name="google" />
-        </TouchableOpacity>
-      </View>
-
-      <View className="mt-5 flex-row">
-        <Text className="text-white">Don't have an account? </Text>
+        <Text className="text-gray"> Have an account? </Text>
         <TouchableOpacity onPress={() => router.push('/login')}>
-          <Text className="text-blue-500">Sign IN</Text>
+          <Text className="text-gray underline">Sign IN</Text>
         </TouchableOpacity>
       </View>
-    </View>
+    </KeyboardAvoidingView>
   );
 };
 
