@@ -117,7 +117,7 @@ const ScheduleOutfitsScreen: React.FC = () => {
       <TouchableOpacity
         className={`m-1 flex h-40 w-20 items-center justify-start rounded-lg ${
           schedule ? 'bg-blue-100' : 'bg-gray-100'
-        } ${isTodayDay ? 'border-2 border-blue-500' : ''} ${isDisabled ? 'opacity-50' : ''}`}
+        } ${isTodayDay ? 'border-blue-500 border-2' : ''} ${isDisabled ? 'opacity-50' : ''}`}
         onPress={() => handleDayPress(day)}
         disabled={isDisabled}>
         <Text className="mt-2 text-lg font-semibold">{format(day, 'd')}</Text>
@@ -138,7 +138,7 @@ const ScheduleOutfitsScreen: React.FC = () => {
 
   const renderOutfit = ({ item }: { item: any }) => (
     <TouchableOpacity
-      className="m-2 flex-row items-center rounded-lg bg-gray-100 p-2"
+      className="bg-gray-100 m-2 flex-row items-center rounded-lg p-2"
       onPress={() => handleSelectOutfit(item.id)}>
       <View className="mr-2 flex-col items-center">
         {sortImagesByCategory(item.images).map((image: any) => (
@@ -157,7 +157,7 @@ const ScheduleOutfitsScreen: React.FC = () => {
   return (
     <SafeAreaView className="flex-1 bg-white">
       {/* Header with Tabs */}
-      <View className="flex-row items-center justify-between border-b border-gray-200 px-4 py-3">
+      {/* <View className="flex-row items-center justify-between border-b border-gray-200 px-4 py-3">
         <TouchableOpacity onPress={() => router.back()}>
           <Ionicons name="arrow-back" size={24} color="black" />
         </TouchableOpacity>
@@ -177,7 +177,7 @@ const ScheduleOutfitsScreen: React.FC = () => {
           </Text>
         </View>
         <Ionicons name="heart-outline" size={24} color="black" />
-      </View>
+      </View> */}
 
       {/* Calendar Navigation */}
       <View className="flex-row items-center justify-between px-4 py-2">
@@ -237,7 +237,7 @@ const ScheduleOutfitsScreen: React.FC = () => {
               renderItem={renderOutfit}
               keyExtractor={(item) => item.id}
               ListEmptyComponent={
-                <Text className="text-center text-gray-500">No outfits available</Text>
+                <Text className="text-gray-500 text-center">No outfits available</Text>
               }
             />
             {createPending && <ActivityIndicator size="large" color="#0000ff" />}

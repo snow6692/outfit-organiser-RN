@@ -12,7 +12,9 @@ import {
   FlatList,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { Ionicons } from '@expo/vector-icons';
+import { AntDesign, Ionicons } from '@expo/vector-icons';
+import MaterialCommunityIcons from '@expo/vector-icons/MaterialCommunityIcons';
+
 import { useRouter } from 'expo-router';
 import { useGetAllCategories } from '~/hooks/useGetAllCategories';
 import { useGetCategoryById } from '~/hooks/useGetCategoryById';
@@ -30,6 +32,8 @@ import { UploadFormData, uploadSchema } from '~/validations/image.zod';
 import { useQueryClient } from '@tanstack/react-query';
 import { categoriesTypes } from '../../../../back/src/types/category.types';
 import axios from 'axios';
+import ScheduleOutfitsScreen from './schedule-outfits';
+import WishlistScreen from './wishlist';
 
 // Clarifai utility functions
 const convertImageToBase64 = async (uri: string): Promise<string> => {
@@ -173,7 +177,7 @@ const WardrobeScreen: React.FC = () => {
   const [isUploading, setIsUploading] = useState(false);
   const [uploadError, setUploadError] = useState<string | null>(null);
   const [activeTab, setActiveTab] = useState<
-    'wardrobe' | 'outfits' | 'createOutfit' | 'activeTab' | 'wishlist' | 'schedule-outfits'
+    'wardrobe' | 'createOutfit' | 'outfits' | 'wishlist' | 'scheduleOutfits'
   >('wardrobe');
   const [selectedImages, setSelectedImages] = useState<
     { id: string; url: string; category: string }[]
@@ -455,42 +459,93 @@ const WardrobeScreen: React.FC = () => {
       </View>
     );
   };
-
   return (
     <SafeAreaView className="flex-1 bg-white">
       <View className="border-gray-200 flex-row items-center justify-between border-b px-4 py-3">
         <TouchableOpacity onPress={() => router.back()}>
           <Ionicons name="arrow-back" size={24} color="black" />
         </TouchableOpacity>
-        <View className="flex-row">
-          <TouchableOpacity onPress={() => setActiveTab('wardrobe')}>
-            <Text
-              className={`mx-3 text-lg ${
-                activeTab === 'wardrobe' ? 'border-b-2 border-black font-semibold' : 'text-gray-500'
-              }`}>
-              Wardrobe
-            </Text>
-          </TouchableOpacity>
-          <TouchableOpacity onPress={() => setActiveTab('outfits')}>
-            <Text
-              className={`mx-3 text-lg ${
-                activeTab === 'outfits' ? 'border-b-2 border-black font-semibold' : 'text-gray-500'
-              }`}>
-              Outfits
-            </Text>
-          </TouchableOpacity>
-          <TouchableOpacity onPress={() => setActiveTab('createOutfit')}>
-            <Text
-              className={`mx-3 text-lg ${
-                activeTab === 'createOutfit'
-                  ? 'border-b-2 border-black font-semibold'
-                  : 'text-gray-500'
-              }`}>
-              Create Outfit
-            </Text>
-          </TouchableOpacity>
-        </View>
-        <Ionicons name="heart-outline" size={24} color="black" />
+        <ScrollView horizontal showsHorizontalScrollIndicator={false}>
+          {/* Navbar */}
+          <View className="flex-row ">
+            {/* Wardrobe */}
+            <TouchableOpacity onPress={() => setActiveTab('wardrobe')} className=" items-center">
+              <MaterialCommunityIcons
+                name={activeTab === 'wardrobe' ? 'wardrobe' : 'wardrobe-outline'}
+                size={24}
+                color="black"
+              />
+              <Text
+                className={`text-md mx-3 ${
+                  activeTab === 'wardrobe'
+                    ? 'border-b-2 border-black font-semibold'
+                    : 'text-gray-500'
+                }`}>
+                Wardrobe
+              </Text>
+            </TouchableOpacity>
+            {/* Outfits */}
+            <TouchableOpacity onPress={() => setActiveTab('outfits')} className=" items-center">
+              <Ionicons
+                name={activeTab === 'outfits' ? 'shirt' : 'shirt-outline'}
+                size={24}
+                color="black"
+              />
+              <Text
+                className={`text-md mx-3 ${
+                  activeTab === 'outfits'
+                    ? 'border-b-2 border-black font-semibold'
+                    : 'text-gray-500'
+                }`}>
+                Outfits
+              </Text>
+            </TouchableOpacity>
+            {/* create */}
+            {/* Create */}
+            <TouchableOpacity
+              onPress={() => setActiveTab('createOutfit')}
+              className=" items-center">
+              <Ionicons
+                name={activeTab === 'createOutfit' ? 'create' : 'create-outline'}
+                size={24}
+                color="black"
+              />
+              <Text
+                className={`text-md mx-3 ${
+                  activeTab === 'createOutfit'
+                    ? 'border-b-2 border-black font-semibold'
+                    : 'text-gray-500'
+                }`}>
+                Create
+              </Text>
+            </TouchableOpacity>
+            {/* Calendar */}
+            <TouchableOpacity
+              onPress={() => setActiveTab('scheduleOutfits')}
+              className="items-center">
+              {activeTab === 'scheduleOutfits' ? (
+                <AntDesign name="calendar" size={24} color="black" />
+              ) : (
+                <Ionicons name="calendar-outline" size={24} color="black" />
+              )}
+              <Text
+                className={`text-md mx-3 ${
+                  activeTab === 'scheduleOutfits'
+                    ? 'border-b-2 border-black font-semibold'
+                    : 'text-gray-500'
+                }`}>
+                Calender
+              </Text>
+            </TouchableOpacity>
+          </View>
+        </ScrollView>
+        <TouchableOpacity onPress={() => setActiveTab('wishlist')}>
+          <Ionicons
+            name={activeTab === 'wishlist' ? 'heart' : 'heart-outline'}
+            size={24}
+            color={activeTab === 'wishlist' ? 'red' : 'black'}
+          />
+        </TouchableOpacity>
       </View>
 
       {activeTab === 'wardrobe' && (
@@ -504,8 +559,8 @@ const WardrobeScreen: React.FC = () => {
                 <ActivityIndicator color="white" />
               ) : (
                 <>
-                  <Ionicons name="add" size={20} color="white" />
-                  <Text className="ml-2 ">Upload New Items</Text>
+                  <Ionicons name="add" size={25} color="white" className="rounded-full bg-blue" />
+                  <Text className="ml-2">Upload New Items</Text>
                 </>
               )}
             </TouchableOpacity>
@@ -540,7 +595,7 @@ const WardrobeScreen: React.FC = () => {
                     <View key={image.id} className="relative mb-4">
                       <Image
                         source={{ uri: image.url }}
-                        className="h-40 w-40 rounded-lg"
+                        className="h-40 w-40 rounded-lg border border-blue p-2"
                         resizeMode="cover"
                       />
                       <TouchableOpacity
@@ -639,7 +694,7 @@ const WardrobeScreen: React.FC = () => {
             {isUploading ? (
               <ActivityIndicator color="white" />
             ) : (
-              <Text className="text-center text-black ">Generate Outfits</Text>
+              <Text className="text-center text-black">Generate Outfits</Text>
             )}
           </TouchableOpacity>
           {selectedImages.length > 0 && (
@@ -670,45 +725,9 @@ const WardrobeScreen: React.FC = () => {
         </View>
       )}
 
-      {activeTab === 'schedule-outfits' && (
-        <View className="flex-1 px-4 py-3">
-          <Text className="mb-2 text-lg font-semibold">Schedule Outfits</Text>
-          {/* Add your schedule-outfits content here */}
-          <Text className="text-gray-500 mt-4 text-center">Schedule feature coming soon!</Text>
-        </View>
-      )}
+      {activeTab === 'wishlist' && <WishlistScreen />}
 
-      {activeTab === 'wishlist' && (
-        <View className="flex-1 px-4 py-3">
-          <Text className="mb-2 text-lg font-semibold">Wishlist</Text>
-          {/* Add your wishlist content here, e.g., list favorite outfits */}
-          {outfitsLoading ? (
-            <ActivityIndicator size="large" color="#0000ff" />
-          ) : outfitsError ? (
-            <Text className="mt-4 text-center text-red-500">{outfitsError.message}</Text>
-          ) : outfits && outfits.length > 0 ? (
-            <FlatList
-              data={outfits.filter((outfit) => outfit.favorite)}
-              renderItem={renderOutfitItem}
-              keyExtractor={(item) => item.id}
-              contentContainerStyle={{ paddingBottom: 20 }}
-            />
-          ) : (
-            <Text className="text-gray-500 mt-4 text-center">No wishlist items found.</Text>
-          )}
-        </View>
-      )}
-
-      {activeTab === 'wardrobe' && (
-        <View className="border-gray-200 flex-row justify-around border-t px-4 py-3">
-          <TouchableOpacity className="border-gray-300 rounded-lg border px-4 py-2">
-            <Text className="text-black">Add</Text>
-          </TouchableOpacity>
-          <TouchableOpacity className="border-gray-300 rounded-lg border px-4 py-2">
-            <Text className="text-black">Styling</Text>
-          </TouchableOpacity>
-        </View>
-      )}
+      {activeTab === 'scheduleOutfits' && <ScheduleOutfitsScreen />}
     </SafeAreaView>
   );
 };

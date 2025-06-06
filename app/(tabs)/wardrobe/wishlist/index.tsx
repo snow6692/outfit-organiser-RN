@@ -121,24 +121,6 @@ const WishlistScreen: React.FC = () => {
 
   return (
     <SafeAreaView className="flex-1 bg-white">
-      <View className="border-gray-200 flex-row items-center justify-between border-b px-4 py-3">
-        <TouchableOpacity onPress={() => router.back()}>
-          <Ionicons name="arrow-back" size={24} color="black" />
-        </TouchableOpacity>
-        <View className="flex-row">
-          <TouchableOpacity onPress={() => router.push('/profile')}>
-            <Text className="text-gray-500 mx-3 text-lg">Wardrobe</Text>
-          </TouchableOpacity>
-          <Text className="mx-3 border-b-2 border-black text-lg font-semibold text-black">
-            Wishlist
-          </Text>
-          <TouchableOpacity onPress={() => router.push('/(tabs)/wardrobe/schedule-outfits')}>
-            <Text className="text-gray-500 mx-3 text-lg">Schedule Outfits</Text>
-          </TouchableOpacity>
-        </View>
-        <Ionicons name="heart-outline" size={24} color="black" />
-      </View>
-
       <View className="flex-1 px-4 py-3">
         <Text className="mb-2 text-lg font-semibold">Your Wishlist</Text>
         {outfitsLoading ? (
