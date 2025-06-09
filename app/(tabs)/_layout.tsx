@@ -4,7 +4,7 @@ import { Tabs } from 'expo-router';
 // eslint-disable-next-line import/order
 import { Ionicons } from '@expo/vector-icons';
 import ProtectedRoute from '../ProtectedRoute';
-
+import MaterialCommunityIcons from '@expo/vector-icons/MaterialCommunityIcons';
 export default function TabsLayout() {
   return (
     <ProtectedRoute>
@@ -45,16 +45,16 @@ export default function TabsLayout() {
             href: '/wardrobe',
             tabBarLabel: '',
             tabBarIcon: ({ color, focused }) => (
-              <Ionicons
-                name={focused ? 'image-outline' : 'images-outline'}
+              <MaterialCommunityIcons
+                name={focused ? 'wardrobe' : 'wardrobe-outline'}
                 size={24}
-                color={color}
+                color="black"
               />
             ),
           }}
         />
         <Tabs.Screen
-          name="profile/index"
+          name="profile"
           options={{
             href: '/profile',
             tabBarLabel: '',

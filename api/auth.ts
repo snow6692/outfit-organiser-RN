@@ -16,3 +16,4 @@ export const loginUser = async (email: string, password: string) => {
   const response = await api.post('/signin', { email, password });
   return response.data;
 };
+  

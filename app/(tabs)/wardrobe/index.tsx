@@ -694,7 +694,10 @@ const WardrobeScreen: React.FC = () => {
             {isUploading ? (
               <ActivityIndicator color="white" />
             ) : (
-              <Text className="text-center text-black">Generate Outfits</Text>
+              <View className=" flex-row  items-center justify-center ">
+                <Ionicons name="create" size={24} color="black" />
+                <Text className="text-center text-black">Generate Outfits</Text>
+              </View>
             )}
           </TouchableOpacity>
           {selectedImages.length > 0 && (

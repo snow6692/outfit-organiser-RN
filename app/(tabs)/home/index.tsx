@@ -4,11 +4,12 @@ import React from 'react';
 import { View, Text, Image, ScrollView } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
-import { useAuth } from '~/hooks/useAuth';
 import { Redirect } from 'expo-router';
+import { useUser } from '~/hooks/useUser';
 
 const Home = () => {
-  const { user } = useAuth();
+  const { user } = useUser();
+
   if (!user) return <Redirect href="/" />;
 
   return (
@@ -16,23 +17,25 @@ const Home = () => {
       <View className="  flex-row items-center justify-between border-b border-black bg-white  px-5 py-4">
         <View className="flex-row items-center">
           {/* User Image */}
-          <Image
-            source={require('../../../assets/avatar.jpg')}
-            className="h-12 w-12 rounded-full "
-          />
+
+          {user.image ? (
+            <Image source={{ uri: user.image }} className="h-12 w-12 rounded-full " />
+          ) : (
+            <Image
+              source={require('../../../assets/avatar.jpg')}
+              className="h-12 w-12 rounded-full "
+            />
+          )}
           <Text className="ml-3 text-xl font-bold tracking-wide text-black">
             Hey, {user?.name || 'Ahmed'}!
           </Text>
         </View>
-        <Ionicons name="notifications-outline" size={28} color="black" />
       </View>
 
       {/* Welcome Section */}
       <View className="px-5 pb-3 pt-5">
         <Text className="text-3xl font-bold tracking-tight text-[#4A2C0F]">Your Style </Text>
-        <Text className="mt-1 text-base text-[#7A5A3E]">
-          Create your perfect outfits for today
-        </Text>
+        <Text className="mt-1 text-base text-[#7A5A3E]">Create your perfect outfits for today</Text>
       </View>
 
       {/* Outfit Section */}
