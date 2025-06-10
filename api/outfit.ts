@@ -57,7 +57,7 @@ export const createOutfit = async (
     return response.data;
   } catch (error: any) {
     console.error('Create Outfit Error:', error.response?.data || error.message);
-    throw new Error(error.response?.data?.message || 'Failed to create outfit');
+    throw new Error(error.response?.data?.message || 'This outfit already exists');
   }
 };
 

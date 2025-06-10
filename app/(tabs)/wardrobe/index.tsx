@@ -14,7 +14,6 @@ import {
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { AntDesign, Ionicons } from '@expo/vector-icons';
 import MaterialCommunityIcons from '@expo/vector-icons/MaterialCommunityIcons';
-
 import { useRouter } from 'expo-router';
 import { useGetAllCategories } from '~/hooks/useGetAllCategories';
 import { useGetCategoryById } from '~/hooks/useGetCategoryById';
@@ -75,7 +74,9 @@ const mapClarifaiToCategory = (concept: string): string | null => {
   return null;
 };
 
-const classifyImage = async (imageUri: string): Promise<string | null> => {
+const classifyImage = async (
+  imageUri: string
+): Promise<{ category: string | null; color: string | null }> => {
   try {
     const base64Image = await convertImageToBase64(imageUri);
     const base64Data = base64Image.split(',')[1];
@@ -108,6 +109,7 @@ const classifyImage = async (imageUri: string): Promise<string | null> => {
 
     const regions = response.data.outputs[0].data.regions || [];
     let predictedCategory: string | null = null;
+    let predictedColor: string | null = null;
 
     for (const region of regions) {
       const concepts = region.data.concepts || [];
@@ -115,23 +117,83 @@ const classifyImage = async (imageUri: string): Promise<string | null> => {
         const category = mapClarifaiToCategory(concept.name.toLowerCase());
         if (category) {
           predictedCategory = category;
+          if (concept.name.toLowerCase().includes('color')) {
+            predictedColor = concept.name.toLowerCase().replace('color_', '');
+          }
           break;
         }
       }
       if (predictedCategory) break;
     }
 
-    console.log('Clarifai Predicted Category:', predictedCategory);
-    return predictedCategory;
+    console.log('Clarifai Predicted Category:', predictedCategory, 'Color:', predictedColor);
+    return { category: predictedCategory, color: predictedColor };
   } catch (error: any) {
     console.error('Clarifai classification error:', error.message, error.response?.data);
-    return null;
+    return { category: null, color: null };
   }
 };
 
-// Generate up to 5 suitable outfit combinations
+// Simple color compatibility logic
+const isColorCompatible = (color1: string | null, color2: string | null): boolean => {
+  if (!color1 || !color2) return true; // Fallback if colors are not detected
+
+  const neutralColors = ['black', 'white', 'gray', 'beige', 'navy'];
+  const colorWheel = {
+    red: ['green', 'blue', 'purple'],
+    blue: ['orange', 'red', 'purple'],
+    green: ['red', 'yellow', 'blue'],
+    yellow: ['purple', 'green'],
+    purple: ['yellow', 'blue', 'red'],
+    orange: ['blue', 'yellow'],
+  };
+
+  if (
+    neutralColors.includes(color1.toLowerCase()) ||
+    neutralColors.includes(color2.toLowerCase())
+  ) {
+    return true;
+  }
+
+  const compatibleColors = colorWheel[color1.toLowerCase()];
+  if (compatibleColors && compatibleColors.includes(color2.toLowerCase())) {
+    return true;
+  }
+
+  return color1.toLowerCase() === color2.toLowerCase();
+};
+
+// Check if selected images form a compatible outfit
+const areImagesCompatible = (
+  selectedImages: { id: string; url: string; category: string; color: string | null }[]
+): boolean => {
+  const tops = selectedImages.filter((img) => img.category.toLowerCase() === 'top');
+  const bottoms = selectedImages.filter((img) => img.category.toLowerCase() === 'bottom');
+  const shoes = selectedImages.filter((img) => img.category.toLowerCase() === 'shoes');
+
+  if (!tops.length || !bottoms.length || !shoes.length) {
+    return false;
+  }
+
+  for (const top of tops) {
+    for (const bottom of bottoms) {
+      if (!isColorCompatible(top.color, bottom.color)) continue;
+      for (const shoe of shoes) {
+        if (
+          isColorCompatible(top.color, shoe.color) &&
+          isColorCompatible(bottom.color, shoe.color)
+        ) {
+          return true;
+        }
+      }
+    }
+  }
+  return false;
+};
+
+// Generate up to 5 outfit combinations based on color compatibility
 const generateOutfitCombinations = (
-  selectedImages: { id: string; url: string; category: string }[]
+  selectedImages: { id: string; url: string; category: string; color: string | null }[]
 ) => {
   const tops = selectedImages.filter((img) => img.category.toLowerCase() === 'top');
   const bottoms = selectedImages.filter((img) => img.category.toLowerCase() === 'bottom');
@@ -144,19 +206,41 @@ const generateOutfitCombinations = (
   const combinations: string[][] = [];
   const maxOutfits = 5;
 
-  while (combinations.length < maxOutfits) {
-    const top = tops[Math.floor(Math.random() * tops.length)];
-    const bottom = bottoms[Math.floor(Math.random() * bottoms.length)];
-    const shoe = shoes[Math.floor(Math.random() * shoes.length)];
-
-    const combo = [top.id, bottom.id, shoe.id];
-
-    if (!combinations.some((c) => c.join() === combo.join())) {
-      combinations.push(combo);
+  for (const top of tops) {
+    for (const bottom of bottoms) {
+      if (!isColorCompatible(top.color, bottom.color)) continue;
+      for (const shoe of shoes) {
+        if (
+          !isColorCompatible(top.color, shoe.color) ||
+          !isColorCompatible(bottom.color, shoe.color)
+        ) {
+          continue;
+        }
+        const combo = [top.id, bottom.id, shoe.id];
+        if (!combinations.some((c) => c.join() === combo.join())) {
+          combinations.push(combo);
+        }
+        if (combinations.length >= maxOutfits) break;
+      }
+      if (combinations.length >= maxOutfits) break;
     }
+    if (combinations.length >= maxOutfits) break;
+  }
 
-    if (combinations.length >= Math.min(maxOutfits, tops.length * bottoms.length * shoes.length)) {
-      break;
+  if (combinations.length < maxOutfits) {
+    while (combinations.length < maxOutfits) {
+      const top = tops[Math.floor(Math.random() * tops.length)];
+      const bottom = bottoms[Math.floor(Math.random() * bottoms.length)];
+      const shoe = shoes[Math.floor(Math.random() * shoes.length)];
+      const combo = [top.id, bottom.id, shoe.id];
+      if (!combinations.some((c) => c.join() === combo.join())) {
+        combinations.push(combo);
+      }
+      if (
+        combinations.length >= Math.min(maxOutfits, tops.length * bottoms.length * shoes.length)
+      ) {
+        break;
+      }
     }
   }
 
@@ -180,7 +264,7 @@ const WardrobeScreen: React.FC = () => {
     'wardrobe' | 'createOutfit' | 'outfits' | 'wishlist' | 'scheduleOutfits'
   >('wardrobe');
   const [selectedImages, setSelectedImages] = useState<
-    { id: string; url: string; category: string }[]
+    { id: string; url: string; category: string; color: string | null }[]
   >([]);
 
   const {
@@ -241,15 +325,15 @@ const WardrobeScreen: React.FC = () => {
       console.log('Selected Image URI:', imageUri);
 
       setIsUploading(true);
-      const predictedCategory = await classifyImage(imageUri);
+      const { category, color } = await classifyImage(imageUri);
       setIsUploading(false);
 
-      if (predictedCategory) {
-        const category = categories.find(
-          (cat: categoriesTypes) => cat.name.toLowerCase() === predictedCategory
+      if (category) {
+        const categoryObj = categories.find(
+          (cat: categoriesTypes) => cat.name.toLowerCase() === category
         );
-        if (category) {
-          setValue('categoryId', category.id);
+        if (categoryObj) {
+          setValue('categoryId', categoryObj.id);
           handleSubmit(onSubmit)();
         } else {
           setUploadError('Category not found in the system.');
@@ -312,13 +396,18 @@ const WardrobeScreen: React.FC = () => {
     console.log('Selected Category:', category);
   };
 
-  const toggleImageSelection = (image: { id: string; url: string; category: string }) => {
+  const toggleImageSelection = (image: {
+    id: string;
+    url: string;
+    category: string;
+    color?: string | null;
+  }) => {
     setSelectedImages((prev) => {
       const isSelected = prev.some((img) => img.id === image.id);
       if (isSelected) {
         return prev.filter((img) => img.id !== image.id);
       } else {
-        return [...prev, image];
+        return [...prev, { ...image, color: image.color || null }];
       }
     });
   };
@@ -329,6 +418,48 @@ const WardrobeScreen: React.FC = () => {
       return;
     }
 
+    const tops = selectedImages.filter((img) => img.category.toLowerCase() === 'top');
+    const bottoms = selectedImages.filter((img) => img.category.toLowerCase() === 'bottom');
+    const shoes = selectedImages.filter((img) => img.category.toLowerCase() === 'shoes');
+
+    if (!tops.length || !bottoms.length || !shoes.length) {
+      alert(
+        'Please select at least one top, one bottom, and one pair of shoes to create an outfit.'
+      );
+      return;
+    }
+
+    // Check color compatibility
+    const isCompatible = areImagesCompatible(selectedImages);
+
+    if (!isCompatible) {
+      Alert.alert(
+        'Color Incompatibility',
+        'The selected items have colors that may not be compatible together. Would you like to proceed anyway or select different items?',
+        [
+          {
+            text: 'Select Different Items',
+            style: 'cancel',
+            onPress: () => {
+              return;
+            },
+          },
+          {
+            text: 'Proceed Anyway',
+            style: 'default',
+            onPress: async () => {
+              await proceedWithOutfitCreation();
+            },
+          },
+        ],
+        { cancelable: true }
+      );
+    } else {
+      await proceedWithOutfitCreation();
+    }
+  };
+
+  const proceedWithOutfitCreation = async () => {
     const combinations = generateOutfitCombinations(selectedImages);
     if (combinations.length === 0) {
       alert(
@@ -338,18 +469,60 @@ const WardrobeScreen: React.FC = () => {
     }
 
     setIsUploading(true);
+    let createdCount = 0;
+    let skippedDuplicates = 0;
+
     try {
       for (const combo of combinations) {
         console.log('Creating outfit with images:', combo);
-        await createOutfitMutation.mutateAsync({ images: combo });
+        try {
+          await createOutfitMutation.mutateAsync({ images: combo });
+          createdCount++;
+        } catch (error: any) {
+          const rawError = error.message || error.toString() || 'Unknown error';
+          if (
+            rawError.toLowerCase().includes('already exits') ||
+            rawError.toLowerCase().includes('exists')
+          ) {
+            if (process.env.NODE_ENV === 'development') {
+              console.warn('Duplicate Outfit Skipped:', { message: rawError, combo });
+            }
+            skippedDuplicates++;
+            continue; // Skip duplicate and continue with next combination
+          } else {
+            if (process.env.NODE_ENV === 'development') {
+              console.error('Individual Outfit Creation Error:', { message: rawError, combo });
+            }
+            throw error; // Rethrow other errors to stop the loop
+          }
+        }
       }
-      alert(`Successfully created ${combinations.length} outfits!`);
-      setSelectedImages([]);
+
+      let alertMessage = '';
+      if (createdCount > 0) {
+        alertMessage += `Successfully created ${createdCount} outfit${createdCount > 1 ? 's' : ''}!`;
+      }
+      if (skippedDuplicates > 0) {
+        alertMessage += `${alertMessage ? '\n' : ''}${skippedDuplicates} outfit${skippedDuplicates > 1 ? 's' : ''} already exist${skippedDuplicates > 1 ? '' : 's'} and were skipped.`;
+      }
+      if (!alertMessage) {
+        alertMessage = 'No new outfits were created. All combinations already exist.';
+      }
+
+      alert(alertMessage);
+      if (createdCount > 0 || skippedDuplicates > 0) {
+        setSelectedImages([]);
+      }
     } catch (error: any) {
-      const errorMessage = error.message.includes('You can only use your own images')
-        ? 'Some selected items are not available. Please choose different items and try again.'
-        : error.message || 'Failed to create outfits';
-      console.error('Outfit creation error:', errorMessage);
+      const rawError = error.message || error.toString() || 'Unknown error';
+      if (process.env.NODE_ENV === 'development') {
+        console.error('Outfit Creation Error:', { message: rawError });
+      }
+      let errorMessage = 'Failed to create outfits';
+      if (rawError.includes('You can only use your own images')) {
+        errorMessage =
+          'Some selected items are not available. Please choose different items and try again.';
+      }
       alert(errorMessage);
     } finally {
       setIsUploading(false);
@@ -415,7 +588,7 @@ const WardrobeScreen: React.FC = () => {
   }: {
     item: {
       id: string;
-      images: { id: string; url: string; Category: { name: string } }[];
+      images: { id: string; url: string; Category: { name: string }; color?: string | null }[];
       favorite: boolean;
     };
   }) => {
@@ -457,6 +630,7 @@ const WardrobeScreen: React.FC = () => {
       </View>
     );
   };
+
   return (
     <SafeAreaView className="flex-1 bg-white">
       <View className="border-gray-200 flex-row items-center justify-between border-b px-4 py-3">
@@ -464,10 +638,8 @@ const WardrobeScreen: React.FC = () => {
           <Ionicons name="arrow-back" size={24} color="black" />
         </TouchableOpacity>
         <ScrollView horizontal showsHorizontalScrollIndicator={false}>
-          {/* Navbar */}
-          <View className="flex-row ">
-            {/* Wardrobe */}
-            <TouchableOpacity onPress={() => setActiveTab('wardrobe')} className=" items-center">
+          <View className="flex-row">
+            <TouchableOpacity onPress={() => setActiveTab('wardrobe')} className="items-center">
               <MaterialCommunityIcons
                 name={activeTab === 'wardrobe' ? 'wardrobe' : 'wardrobe-outline'}
                 size={24}
@@ -482,8 +654,7 @@ const WardrobeScreen: React.FC = () => {
                 Wardrobe
               </Text>
             </TouchableOpacity>
-            {/* Outfits */}
-            <TouchableOpacity onPress={() => setActiveTab('outfits')} className=" items-center">
+            <TouchableOpacity onPress={() => setActiveTab('outfits')} className="items-center">
               <Ionicons
                 name={activeTab === 'outfits' ? 'shirt' : 'shirt-outline'}
                 size={24}
@@ -498,11 +669,7 @@ const WardrobeScreen: React.FC = () => {
                 Outfits
               </Text>
             </TouchableOpacity>
-            {/* create */}
-            {/* Create */}
-            <TouchableOpacity
-              onPress={() => setActiveTab('createOutfit')}
-              className=" items-center">
+            <TouchableOpacity onPress={() => setActiveTab('createOutfit')} className="items-center">
               <Ionicons
                 name={activeTab === 'createOutfit' ? 'create' : 'create-outline'}
                 size={24}
@@ -517,7 +684,6 @@ const WardrobeScreen: React.FC = () => {
                 Create
               </Text>
             </TouchableOpacity>
-            {/* Calendar */}
             <TouchableOpacity
               onPress={() => setActiveTab('scheduleOutfits')}
               className="items-center">
@@ -532,7 +698,7 @@ const WardrobeScreen: React.FC = () => {
                     ? 'border-b-2 border-black font-semibold'
                     : 'text-gray-500'
                 }`}>
-                Calender
+                Calendar
               </Text>
             </TouchableOpacity>
           </View>
@@ -655,6 +821,7 @@ const WardrobeScreen: React.FC = () => {
                             id: image.id,
                             url: image.url,
                             category: categoryWithImages.name.toLowerCase(),
+                            color: image.color || null,
                           })
                         }>
                         <Image
@@ -692,7 +859,7 @@ const WardrobeScreen: React.FC = () => {
             {isUploading ? (
               <ActivityIndicator color="white" />
             ) : (
-              <View className=" flex-row  items-center justify-center ">
+              <View className="flex-row items-center justify-center">
                 <Ionicons name="create" size={24} color="white" />
                 <Text className="text-center text-white">Generate Outfits</Text>
               </View>
