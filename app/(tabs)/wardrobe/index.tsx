@@ -195,13 +195,7 @@ const WardrobeScreen: React.FC = () => {
   const deleteOutfitMutation = useDeleteOutfit();
   const updateOutfitMutation = useUpdateOutfit();
 
-  const {
-    control,
-    handleSubmit,
-    setValue,
-    formState: { errors },
-    reset,
-  } = useForm<UploadFormData>({
+  const { handleSubmit, setValue, reset } = useForm<UploadFormData>({
     resolver: zodResolver(uploadSchema),
     defaultValues: {
       imageUri: '',
@@ -453,7 +447,11 @@ const WardrobeScreen: React.FC = () => {
           <TouchableOpacity
             className={`rounded-full p-1 ${item.favorite ? 'bg-red-500' : 'bg-gray-500'}`}
             onPress={() => handleToggleFavorite(item.id, item.favorite)}>
-            <Ionicons name={item.favorite ? 'heart' : 'heart-outline'} size={20} color="white" />
+            <Ionicons
+              name={item.favorite ? 'heart' : 'heart-outline'}
+              size={20}
+              color={item.favorite ? 'white' : 'red'}
+            />
           </TouchableOpacity>
         </View>
       </View>
@@ -572,7 +570,7 @@ const WardrobeScreen: React.FC = () => {
               <TouchableOpacity
                 key={category.id}
                 className={`rounded-full px-4 py-2 ${
-                  selectedCategoryId === category.id ? 'bg-blue-500' : 'border-gray-300 border'
+                  selectedCategoryId === category.id ? 'bg-blue' : 'border-gray-300 border'
                 }`}
                 onPress={() => handleCategorySelect(category)}>
                 <Text
@@ -628,7 +626,7 @@ const WardrobeScreen: React.FC = () => {
               <TouchableOpacity
                 key={category.id}
                 className={`rounded-full px-4 py-2 ${
-                  selectedCategoryId === category.id ? 'bg-blue-500' : 'border-gray-300 border'
+                  selectedCategoryId === category.id ? 'bg-blue' : 'border-gray-300 border'
                 }`}
                 onPress={() => handleCategorySelect(category)}>
                 <Text
@@ -688,15 +686,15 @@ const WardrobeScreen: React.FC = () => {
             )}
           </ScrollView>
           <TouchableOpacity
-            className="bg-blue-500 mt-4 rounded-full px-4 py-2"
+            className="mt-4 rounded-full bg-blue px-4 py-2"
             onPress={generateAndSaveOutfits}
             disabled={isUploading}>
             {isUploading ? (
               <ActivityIndicator color="white" />
             ) : (
               <View className=" flex-row  items-center justify-center ">
-                <Ionicons name="create" size={24} color="black" />
-                <Text className="text-center text-black">Generate Outfits</Text>
+                <Ionicons name="create" size={24} color="white" />
+                <Text className="text-center text-white">Generate Outfits</Text>
               </View>
             )}
           </TouchableOpacity>

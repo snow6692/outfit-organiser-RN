@@ -1,11 +1,11 @@
 /* eslint-disable prettier/prettier */
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { updateUser, getUser, UserResponse } from '~/api/user';
-import { useAuth } from '~/hooks/useAuth'; // To get the initial auth state
+// import { useAuth } from '~/hooks/useAuth';
 
 export function useUser() {
   const queryClient = useQueryClient();
-  const { user: initialUser } = useAuth();
+  // const { user: initialUser } = useAuth();
 
   // Fetch user data
   const {
@@ -15,7 +15,7 @@ export function useUser() {
   } = useQuery<UserResponse, Error>({
     queryKey: ['user'],
     queryFn: getUser,
-    initialData: initialUser,
+    // initialData: initialUser,
   });
 
   // Mutation to update user data
